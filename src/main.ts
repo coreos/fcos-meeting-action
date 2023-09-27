@@ -1,5 +1,8 @@
 import * as core from '@actions/core'
-import { wait } from './wait'
+import { GetActionItems } from './actionItems'
+import { GetMeetingTopics } from './meetingTopics'
+import { createThisReposIssue } from './createIssue'
+import fs from 'fs'
 
 /**
  * The main function for the action.
@@ -7,20 +10,32 @@ import { wait } from './wait'
  */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
-
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    console.log('GetActionItems')
+    const actionItems = await GetActionItems()
+    console.log(actionItems)
+    
+    console.log('Get meeting topics')
+    const meetingTopics = await GetMeetingTopics()
+    console.log(meetingTopics)
+    
+    const issueBody = hydrateIssueTemplate(actionItems, meetingTopics)
+    console.log('Create issue')
+    createThisReposIssue('Fedora CoreOS Weekly Meeting', issueBody)
+  
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
   }
+}
+
+// read in templated issue body, and replace the placeholders with the actual content
+function hydrateIssueTemplate(
+  actionItems: string,
+  meetingTopics: string
+): string {
+  // read in template file
+  const issueTemplate = fs.readFileSync('./static/meeting-template.md', 'utf8')
+  return issueTemplate
+    .replace('{{action-items}}', actionItems)
+    .replace('{{meeting-topics}}', meetingTopics)
 }
