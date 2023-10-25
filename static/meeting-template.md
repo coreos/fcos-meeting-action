@@ -133,7 +133,8 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
                 sed -z 's|<head>.*</head>||'                  | \
                 sed "s|href='fedora|href='${baseurl}/fedora|" | \
                 sed "s|href=\"fedora|href=\"${baseurl}/fedora|"
-        }```
+        }
+        ```
 
     - [ ] In the terminal run `fcosmeetinghtml <this-meetings-notes>.html`
     - [ ] Copy and paste the output into the post body
