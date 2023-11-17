@@ -142,4 +142,16 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
 
     - [ ] In the terminal run `fcosmeetinghtml <this-meetings-notes>.html`
     - [ ] Copy and paste the output into the post body
-    
+
+4. Schedule a message to be sent in #team-coreos in slack
+    - [ ] in slack navigate to the #team-coreos channel
+    - [ ] Copy and paste the following message:
+         ```text 
+         Good morning everyone! today is Wednesday, and as such I wanted to remind you all
+         that we have our weekly meeting today at 16:30 UTC in #fedora-meeting-1 on libera.chat.
+         Additionally if you have any topics that should be discussed now is the time to add the
+         meeting label to the tracking-ticket. @<next-host-in-line> are you still available to
+         host today? if not please reply to this message so we can find a replacement.
+         ```
+    - [ ] Replace `<next-host-in-line>` with the next person in the [rotation](https://hackmd.io/@4rqq1dsYSVuBswOHTKSIBA/HyjOVBF3h)
+    - [ ] Schedule the message to be sent at 13:00 UTC for the next Wednesday
