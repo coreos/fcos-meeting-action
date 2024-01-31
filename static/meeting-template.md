@@ -53,16 +53,16 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
 ## Meeting Steps
 
 1. Join channel [#meeting-1:fedoraproject.org](https://matrix.to/#/#meeting-1:fedoraproject.org) on matrix, copy these commands and paste them in the channel
-    
+
     - [ ] `!startmeeting fedora_coreos_meeting`
     - [ ] `!topic roll call`
 
 2. Switch to channel [#coreos:fedoraproject.org](https://matrix.to/#/#coreos:fedoraproject.org) on matrix
-    
+
     - [ ] Copy the following notification and post it
 
         ```text
-        aaradhak anthr76 apiaseck davdunc dustymabe gursewak jaimelm jbrooks jcajka jdoss jlebon jmarrero lorbus miabbott nasirhm quentin9696[m] ravanelli saqali walters 
+        aaradhak anthr76 apiaseck davdunc dustymabe gursewak jaimelm jbrooks jcajka jdoss jlebon jmarrero lorbus miabbott nasirhm quentin9696[m] ravanelli saqali walters
         FCOS community meeting in #fedora-meeting-1
         If you don't want to be pinged remove your name from this file: https://github.com/coreos/fedora-coreos-tracker/blob/main/issue_template/meeting-template.md
         ```
@@ -75,7 +75,7 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
     - [ ] `{{action-items}}`
 
 5. After the Action items are covered start the topics from the tracker
-    
+
     - [ ] Cover the below topics from the tracker repository
 {{meeting-topics}}
 
@@ -95,7 +95,7 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
    - [ ] Add any relevant information to the ticket
 
 2. Email a meeting summary
-   
+
    - [ ] to: `coreos@lists.fedoraproject.org`
    - [ ] subject: Fedora CoreOS Community Meeting Minutes YYYY-MM-DD
    - [ ] cc: `devel@lists.fedoraproject.org`
@@ -114,7 +114,7 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
         - [ ] Body
 
             1. Copy and paste the contents of the `<this-meetings-notes>.txt` file
-            
+
 3. Post to [fedora project](https://discussion.fedoraproject.org/tag/coreos-wg)
     - [ ] subject: `Fedora CoreOS Community Meeting Minutes YYYY-MM-DD`
     - [ ] category: `Project Discussion`
@@ -123,13 +123,13 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
         ```bash
         fcosmeetinghtml() {
             SUMMARY_URL="$1"
-            
+
             # Extract meeting date and time from the summary URL
             MEETING_DATE_TIME=$(echo "$SUMMARY_URL" | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}\.[0-9]{2}')
 
             # Extract meeting date from the date and time
             MEETING_DATE=$(echo "$MEETING_DATE_TIME" | cut -d'-' -f1-3)
-            
+
             # Hydrate the raw summary URL based on the meeting date and time
             RAW_SUMMARY_URL="https://meetbot-raw.fedoraproject.org/meeting-1_matrix_fedoraproject-org/$MEETING_DATE/fedora-coreos-meeting.$MEETING_DATE_TIME.html"
 
@@ -159,4 +159,3 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
         ```
     - [ ] In the terminal run `fcosmeetinghtml <this-meetings-notes>.html`
     - [ ] Copy and paste the output into the post body
-    
