@@ -52,12 +52,12 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
 
 ## Meeting Steps
 
-1. Join channel [#coreos:fedoraproject.org](https://matrix.to/#/#coreos:fedoraproject.org) on matrix, copy these commands and paste them in the channel
+1. Join channel [#meeting-1:fedoraproject.org](https://matrix.to/#/#meeting-1:fedoraproject.org) on matrix, copy these commands and paste them in the channel
     
     - [ ] `!startmeeting fedora_coreos_meeting`
     - [ ] `!topic roll call`
 
-2. Switch to channel [#meeting-1:fedoraproject.org](https://matrix.to/#/#meeting-1:fedoraproject.org) on matrix
+2. Switch to channel [#coreos:fedoraproject.org](https://matrix.to/#/#coreos:fedoraproject.org) on matrix
     
     - [ ] Copy the following notification and post it
 
