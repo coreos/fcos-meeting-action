@@ -22872,6 +22872,69 @@ async function fetchData(url) {
 
 /***/ }),
 
+/***/ 6975:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.GetAttendees = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const axios_1 = __importDefault(__nccwpck_require__(8757));
+async function GetAttendees() {
+    try {
+        console.log(`GetAttendees started`);
+        // Fetch the attendees from the specified URL
+        const fetchedRollCall = await fetchData(core.getInput('peopleListURL'));
+        const peopleList = fetchedRollCall.split('\n').slice(2).join(' ');
+        console.log(peopleList);
+        return peopleList;
+    }
+    catch (error) {
+        // Fail the workflow run if an error occurs
+        if (error instanceof Error)
+            core.setFailed(error.message);
+        return `Failed to get attendees. Check here https://github.com/coreos/fedora-coreos-tracker/blob/main/meeting-people.txt`;
+    }
+}
+exports.GetAttendees = GetAttendees;
+async function fetchData(url) {
+    const options = {
+        method: `GET`,
+        url
+    };
+    return (await (0, axios_1.default)(options)).data;
+}
+
+
+/***/ }),
+
 /***/ 463:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -22972,6 +23035,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const actionItems_1 = __nccwpck_require__(6139);
 const meetingTopics_1 = __nccwpck_require__(9220);
 const createIssue_1 = __nccwpck_require__(463);
+const attendees_1 = __nccwpck_require__(6975);
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 /**
  * The main function for the action.
@@ -22979,13 +23043,15 @@ const fs_1 = __importDefault(__nccwpck_require__(7147));
  */
 async function run() {
     try {
+        console.log('GetAttendees');
+        const attendees = await (0, attendees_1.GetAttendees)();
         console.log('GetActionItems');
         const actionItems = await (0, actionItems_1.GetActionItems)();
         console.log(actionItems);
         console.log('Get meeting topics');
         const meetingTopics = await (0, meetingTopics_1.GetMeetingTopics)();
         console.log(meetingTopics);
-        const issueBody = hydrateIssueTemplate(actionItems, meetingTopics);
+        const issueBody = hydrateIssueTemplate(attendees, actionItems, meetingTopics);
         console.log('Create issue');
         (0, createIssue_1.createThisReposIssue)(issueBody);
     }
@@ -22997,10 +23063,11 @@ async function run() {
 }
 exports.run = run;
 // read in templated issue body, and replace the placeholders with the actual content
-function hydrateIssueTemplate(actionItems, meetingTopics) {
+function hydrateIssueTemplate(attendees, actionItems, meetingTopics) {
     // read in template file
     const issueTemplate = fs_1.default.readFileSync('./static/meeting-template.md', 'utf8');
     return issueTemplate
+        .replace('{{attendees}}', attendees)
         .replace('{{action-items}}', actionItems)
         .replace('{{meeting-topics}}', meetingTopics);
 }
