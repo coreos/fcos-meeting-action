@@ -1,0 +1,18 @@
+name: Monthly Maintenance
+on:
+  schedule:
+    - cron: '1 0 * */1 *' # Run it at 00:01 on every 1st day of each month
+
+jobs:
+  monthly_maintenance:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+# In a public repository, scheduled workflows are automatically disabled
+# when no repository activity has occurred in 60 days.
+# To prevent disabling the workflow:
+    - name: Create a dummy commit and push changes
+      run: |
+          git commit --allow-empty -m "Triggering downstream automation with an empty maintenance commit"
+          git push origin HEAD:main
