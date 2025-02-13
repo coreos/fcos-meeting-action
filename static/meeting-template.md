@@ -76,16 +76,21 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
     - [ ] `!topic Action items from last meeting`
     - [ ] `{{action-items}}`
 
-5. After the Action items are covered start the topics from the tracker
+5. Discuss the current Fedora Release Schedule to see if any actions need to be addressed
+
+    - [ ] `!topic Review Fedora 42 Release Schedule`
+        - `!link https://fedorapeople.org/groups/schedule/f-42/f-42-key-tasks.html`
+
+6. After the Action items are covered start the topics from the tracker
 
     - [ ] Cover the below topics from the tracker repository
 {{meeting-topics}}
 
-6. Once all the topics are covered start the open floor
+7. Once all the topics are covered start the open floor
 
     - [ ] `!topic Open Floor`
 
-7. Once the time limit is reached or the open floor is quiet end the meeting
+8. Once the time limit is reached or the open floor is quiet end the meeting
 
     - [ ] `!endmeeting`
 
