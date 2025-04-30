@@ -78,8 +78,8 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
 
 5. Discuss the current Fedora Release Schedule to see if any actions need to be addressed
 
-    - [ ] `!topic Review Fedora 42 Release Schedule`
-        - `!link https://fedorapeople.org/groups/schedule/f-42/f-42-key-tasks.html`
+    - [ ] `!topic Review Fedora 43 Release Schedule`
+        - `!link https://fedorapeople.org/groups/schedule/f-43/f-43-key-tasks.html`
 
 6. After the Action items are covered start the topics from the tracker
 
