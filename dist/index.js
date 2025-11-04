@@ -22964,7 +22964,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createThisReposIssue = void 0;
+exports.closeOutOfBandIssues = exports.createThisReposIssue = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const octokit_1 = __nccwpck_require__(7467);
 async function createThisReposIssue(body) {
@@ -22980,20 +22980,65 @@ async function createThisReposIssue(body) {
             throw new Error(`GITHUB_REPOSITORY environment variable is not set`);
         }
         const [owner, repo] = githubRepository.split(`/`);
-        await octokit.rest.issues.create({
+        const response = await octokit.rest.issues.create({
             owner,
             repo,
             title,
             body
         });
+        return {
+            number: response.data.number,
+            url: response.data.html_url
+        };
     }
     catch (error) {
         // Fail the workflow run if an error occurs
         if (error instanceof Error)
             core.setFailed(error.message);
     }
+    return null;
 }
 exports.createThisReposIssue = createThisReposIssue;
+async function closeOutOfBandIssues(outOfBandIssues, checklistIssue) {
+    if (outOfBandIssues.length === 0) {
+        return;
+    }
+    try {
+        const octokit = new octokit_1.Octokit({
+            auth: process.env.GITHUB_TOKEN
+        });
+        const githubRepository = process.env.GITHUB_REPOSITORY;
+        if (!githubRepository) {
+            throw new Error(`GITHUB_REPOSITORY environment variable is not set`);
+        }
+        const [owner, repo] = githubRepository.split(`/`);
+        for (const issue of outOfBandIssues) {
+            // Add comment to the issue
+            const comment = `This out-of-band topic has been added to the meeting checklist: ${checklistIssue.url}\n\nTopic: ${issue.title}\nExternal link: ${issue.url}`;
+            await octokit.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: issue.issueNumber,
+                body: comment
+            });
+            // Close the issue
+            await octokit.rest.issues.update({
+                owner,
+                repo,
+                issue_number: issue.issueNumber,
+                state: 'closed'
+            });
+            console.log(`Closed out-of-band issue #${issue.issueNumber}`);
+        }
+    }
+    catch (error) {
+        // Log error but don't fail the workflow
+        if (error instanceof Error) {
+            console.error(`Error closing out-of-band issues: ${error.message}`);
+        }
+    }
+}
+exports.closeOutOfBandIssues = closeOutOfBandIssues;
 
 
 /***/ }),
@@ -23049,11 +23094,16 @@ async function run() {
         const actionItems = await (0, actionItems_1.GetActionItems)();
         console.log(actionItems);
         console.log('Get meeting topics');
-        const meetingTopics = await (0, meetingTopics_1.GetMeetingTopics)();
-        console.log(meetingTopics);
-        const issueBody = hydrateIssueTemplate(attendees, actionItems, meetingTopics);
+        const meetingTopicsResult = await (0, meetingTopics_1.GetMeetingTopics)();
+        console.log(meetingTopicsResult.topics);
+        const issueBody = hydrateIssueTemplate(attendees, actionItems, meetingTopicsResult.topics);
         console.log('Create issue');
-        (0, createIssue_1.createThisReposIssue)(issueBody);
+        const createdIssue = await (0, createIssue_1.createThisReposIssue)(issueBody);
+        // Close out-of-band issues if any were processed
+        if (createdIssue && meetingTopicsResult.outOfBandIssues.length > 0) {
+            console.log('Closing out-of-band issues');
+            await (0, createIssue_1.closeOutOfBandIssues)(meetingTopicsResult.outOfBandIssues, createdIssue);
+        }
     }
     catch (error) {
         // Fail the workflow run if an error occurs
@@ -23112,31 +23162,108 @@ async function GetMeetingTopics() {
         const octokit = new rest_1.Octokit({
             auth: process.env.GITHUB_TOKEN
         });
+        // Get topics from the tracking repo
         const [owner, repo] = core.getInput('trackingRepo').split(`/`);
-        const issues = await octokit.issues.listForRepo({
+        const trackerIssues = await octokit.issues.listForRepo({
             owner,
             repo,
             labels: `meeting`,
             state: `open`
         });
-        if (issues.data.length === 0) {
-            return `!topic No meeting topics found.`;
+        // Get out-of-band topics from this repo
+        const githubRepository = process.env.GITHUB_REPOSITORY;
+        if (!githubRepository) {
+            throw new Error(`GITHUB_REPOSITORY environment variable is not set`);
+        }
+        const [thisOwner, thisRepo] = githubRepository.split(`/`);
+        const outOfBandIssues = await octokit.issues.listForRepo({
+            owner: thisOwner,
+            repo: thisRepo,
+            labels: `out-of-band-topic`,
+            state: `open`
+        });
+        // Process out-of-band topics
+        const processedOutOfBand = [];
+        const outOfBandTopics = [];
+        for (const issue of outOfBandIssues.data) {
+            const externalUrl = extractFirstUrl(issue.body || '');
+            if (!externalUrl) {
+                console.warn(`Out-of-band issue #${issue.number} has no URL in body, skipping`);
+                continue;
+            }
+            // Try to fetch external title, fallback to trigger issue title
+            let topicTitle = issue.title;
+            const externalTitle = await fetchExternalTitle(octokit, externalUrl);
+            if (externalTitle) {
+                topicTitle = externalTitle;
+            }
+            outOfBandTopics.push({ title: topicTitle, url: externalUrl });
+            processedOutOfBand.push({
+                issueNumber: issue.number,
+                title: topicTitle,
+                url: externalUrl
+            });
+        }
+        // Combine all topics
+        const allTopics = [
+            ...trackerIssues.data.map((i) => ({
+                title: i.title,
+                url: i.html_url
+            })),
+            ...outOfBandTopics
+        ];
+        if (allTopics.length === 0) {
+            return {
+                topics: `!topic No meeting topics found.`,
+                outOfBandIssues: []
+            };
         }
         let issuesToBeDiscussed = ``;
-        for (const i of issues.data) {
-            issuesToBeDiscussed += `    - [ ] \`!topic ${i.title}\`  \n`;
-            issuesToBeDiscussed += `        - \`!link ${i.html_url}\`  \n`;
+        for (const topic of allTopics) {
+            issuesToBeDiscussed += `    - [ ] \`!topic ${topic.title}\`  \n`;
+            issuesToBeDiscussed += `        - \`!link ${topic.url}\`  \n`;
         }
-        return issuesToBeDiscussed;
+        return {
+            topics: issuesToBeDiscussed,
+            outOfBandIssues: processedOutOfBand
+        };
     }
     catch (error) {
         // Fail the workflow run if an error occurs
         if (error instanceof Error)
             core.setFailed(error.message);
     }
-    return `Failed: to get meeting topics, requires manual intervention.`;
+    return {
+        topics: `Failed: to get meeting topics, requires manual intervention.`,
+        outOfBandIssues: []
+    };
 }
 exports.GetMeetingTopics = GetMeetingTopics;
+function extractFirstUrl(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/;
+    const match = text.match(urlRegex);
+    return match ? match[1] : null;
+}
+async function fetchExternalTitle(octokit, url) {
+    try {
+        // Try to parse as GitHub issue URL
+        const githubIssueRegex = /https?:\/\/github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/;
+        const match = url.match(githubIssueRegex);
+        if (match) {
+            const [, owner, repo, issueNumber] = match;
+            const issue = await octokit.issues.get({
+                owner,
+                repo,
+                issue_number: parseInt(issueNumber, 10)
+            });
+            return issue.data.title;
+        }
+    }
+    catch (error) {
+        console.warn(`Failed to fetch external title from ${url}:`, error);
+    }
+    return null;
+}
 
 
 /***/ }),
