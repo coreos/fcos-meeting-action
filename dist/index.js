@@ -22826,23 +22826,18 @@ const axios_1 = __importDefault(__nccwpck_require__(8757));
 async function GetActionItems() {
     try {
         console.log(`GetActionItems started`);
-        // Set constants
-        // Updated regex for new Matrix meeting format:
-        // - "Action items" (lowercase 'i')
-        // - Ends at blank line followed by next section (e.g., "People Present")
         const actionItemsRegEx = new RegExp(`(?<=Action items\n------------\n)((?:.*\n)*?)(?=\n[A-Z])`, 's');
-        // Updated to match .txt files (not .log.txt)
         const meetingListRegEx = new RegExp(`fedora-coreos-meeting\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}\\.\\d{2})\\.txt`, `g`);
         const allMeetingNotes = core.getInput('rootURLMeetingLogs');
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split('T')[0];
-        const meetingNotesURL = allMeetingNotes + sevenDaysAgo + `/`;
+        // Find the most recent Wednesday (meetings are always on Wednesdays)
+        const mostRecentWednesday = getMostRecentWednesday();
+        const meetingDate = mostRecentWednesday.toISOString().split('T')[0];
+        console.log(`Looking for meeting on Wednesday: ${meetingDate}`);
+        const meetingNotesURL = allMeetingNotes + meetingDate + `/`;
         const listOfMeetings = await fetchData(meetingNotesURL);
         const matches = listOfMeetings.match(meetingListRegEx);
         if (matches != null) {
             const lastMeeting = matches[matches.length - 1];
-            // Extract the date-time portion from the full match
             const dateTimeMatch = lastMeeting.match(/(\d{4}-\d{2}-\d{2}-\d{2}\.\d{2})/);
             if (!dateTimeMatch) {
                 throw new Error(`Could not parse meeting date from: ${lastMeeting}`);
@@ -22878,6 +22873,26 @@ async function fetchData(url) {
         url
     };
     return await (await (0, axios_1.default)(options)).data;
+}
+function getMostRecentWednesday() {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 3 = Wednesday
+    // If today is Wednesday (3), use today
+    // Otherwise, go back to the most recent Wednesday
+    let daysToSubtract = 0;
+    if (dayOfWeek === 3) {
+        daysToSubtract = 0;
+    }
+    else if (dayOfWeek > 3) {
+        daysToSubtract = dayOfWeek - 3;
+    }
+    else {
+        daysToSubtract = dayOfWeek + 4;
+    }
+    const mostRecentWednesday = new Date(today);
+    mostRecentWednesday.setDate(today.getDate() - daysToSubtract);
+    mostRecentWednesday.setHours(0, 0, 0, 0); // Reset to midnight
+    return mostRecentWednesday;
 }
 
 
