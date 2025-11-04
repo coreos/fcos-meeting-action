@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import { GetActionItems } from './actionItems'
 import { GetMeetingTopics } from './meetingTopics'
-import { createThisReposIssue } from './createIssue'
+import { createThisReposIssue, closeOutOfBandIssues } from './createIssue'
 import { GetAttendees } from './attendees'
 import fs from 'fs'
 
@@ -19,16 +19,25 @@ export async function run(): Promise<void> {
     console.log(actionItems)
 
     console.log('Get meeting topics')
-    const meetingTopics = await GetMeetingTopics()
-    console.log(meetingTopics)
+    const meetingTopicsResult = await GetMeetingTopics()
+    console.log(meetingTopicsResult.topics)
 
     const issueBody = hydrateIssueTemplate(
       attendees,
       actionItems,
-      meetingTopics
+      meetingTopicsResult.topics
     )
     console.log('Create issue')
-    createThisReposIssue(issueBody)
+    const createdIssue = await createThisReposIssue(issueBody)
+
+    // Close out-of-band issues if any were processed
+    if (createdIssue && meetingTopicsResult.outOfBandIssues.length > 0) {
+      console.log('Closing out-of-band issues')
+      await closeOutOfBandIssues(
+        meetingTopicsResult.outOfBandIssues,
+        createdIssue
+      )
+    }
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
