@@ -3,12 +3,12 @@ import axios from 'axios'
 export async function GetActionItems(): Promise<string> {
   try {
     console.log(`GetActionItems started`)
-    // Set constants
     const actionItemsRegEx = new RegExp(
-      `(?<=Action Items\n------------\n)((.|\n)*)(?=Action Items,)`
+      `(?<=Action items\n------------\n)((?:.*\n)*?)(?=\n[A-Z])`,
+      's'
     )
     const meetingListRegEx = new RegExp(
-      `(?<=>fedora-coreos-meeting.)(.*?)=?txt`,
+      `fedora-coreos-meeting\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}\\.\\d{2})\\.txt`,
       `g`
     )
     const allMeetingNotes = core.getInput('rootURLMeetingLogs')
@@ -21,20 +21,28 @@ export async function GetActionItems(): Promise<string> {
 
     if (matches != null) {
       const lastMeeting = matches[matches.length - 1]
-      // This should be the latest meeting`s date in with the format of YYYY-MM-DD-HH.MM.txt
+      const dateTimeMatch = lastMeeting.match(
+        /(\d{4}-\d{2}-\d{2}-\d{2}\.\d{2})/
+      )
+      if (!dateTimeMatch) {
+        throw new Error(`Could not parse meeting date from: ${lastMeeting}`)
+      }
+      const dateTime = dateTimeMatch[1]
+      // Construct URL to the .txt file with format: fedora-coreos-meeting.YYYY-MM-DD-HH.MM.txt
       const lastMeetingNotesUrl =
-        meetingNotesURL + 'fedora-coreos-meeting.' + lastMeeting
+        meetingNotesURL + 'fedora-coreos-meeting.' + dateTime + '.txt'
       console.debug(`last meeting notes url ${lastMeetingNotesUrl}`)
       const lastMeetingNotes = await fetchData(lastMeetingNotesUrl)
       const actionItemMatches = actionItemsRegEx.exec(lastMeetingNotes)
 
       if (actionItemMatches) {
-        console.debug(`action item matches${actionItemMatches[0]}`)
-        // if the match is just new lines, then there were no action items
-        if (actionItemMatches[0].match(/^\s*$/)) {
+        const actionItems = actionItemMatches[0].trim()
+        console.debug(`action item matches: ${actionItems}`)
+        // if the match is just whitespace, then there were no action items
+        if (!actionItems || actionItems.match(/^\s*$/)) {
           return `!topic there are no action items from the last meeting.`
         }
-        return actionItemMatches[0]
+        return actionItems
       }
     }
   } catch (error) {
