@@ -22877,11 +22877,10 @@ async function fetchData(url) {
 function getMostRecentWednesday() {
     const today = new Date();
     const dayOfWeek = today.getDay(); // 0 = Sunday, 3 = Wednesday
-    // If today is Wednesday (3), use today
-    // Otherwise, go back to the most recent Wednesday
+    // If today is Wednesday, use last Wednesday (not today)
     let daysToSubtract = 0;
     if (dayOfWeek === 3) {
-        daysToSubtract = 0;
+        daysToSubtract = 7;
     }
     else if (dayOfWeek > 3) {
         daysToSubtract = dayOfWeek - 3;
