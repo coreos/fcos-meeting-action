@@ -50,7 +50,7 @@ async function GetActionItems() {
                 console.debug('action item matches' + actionItemMatches[0]);
                 // if the match is just new lines, then there were no action items
                 if (actionItemMatches[0].match(/^\s*$/)) {
-                    return `#topic there are no action items from the last meeting.`;
+                    return `#info there are no action items from the last meeting.`;
                 }
                 return actionItemMatches[0];
             }
