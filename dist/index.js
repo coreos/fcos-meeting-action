@@ -22853,7 +22853,7 @@ async function GetActionItems() {
                 console.debug(`action item matches: ${actionItems}`);
                 // if the match is just whitespace, then there were no action items
                 if (!actionItems || actionItems.match(/^\s*$/)) {
-                    return `!topic there are no action items from the last meeting.`;
+                    return `!info there are no action items from the last meeting.`;
                 }
                 return actionItems;
             }
