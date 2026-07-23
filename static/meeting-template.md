@@ -2,7 +2,7 @@
 
 ## Meeting Notes
 
-The meeting is held every week, meetings are at `15:30 UTC` on Wednesdays. The meeting is held in https://matrix.to/#/#meeting-1:fedoraproject.org on matrix. The meeting is logged and the logs are available [here](https://meetbot.fedoraproject.org/teams/fedora_coreos_meeting/)
+The meeting is held every week, meetings are at `15:30 UTC` on Wednesdays. The meeting is held in https://matrix.to/#/#meeting-1:fedoraproject.org on matrix. The meeting is logged and the logs are available [here](https://meetbot-raw.fedoraproject.org/meeting-1_matrix_fedoraproject-org/). For older historical logs see [here](https://meetbot-raw.fedoraproject.org/fedora-meeting-1/).
 
 ### Required Concepts
 
@@ -116,7 +116,7 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
                 Minutes (text): <this-meetings-notes>.txt
                 Log: <this-meetings-notes>.log.html
                 ```
-            2. Update the `<this-meetings-notes>` with the link from `https://meetbot-raw.fedoraproject.org//fedora-meeting-1/YYYY-MM-DD/`
+            2. Update the `<this-meetings-notes>` with the link from `https://meetbot-raw.fedoraproject.org/meeting-1_matrix_fedoraproject-org/YYYY-MM-DD/`
 
         - [ ] Body
 
