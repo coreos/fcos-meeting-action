@@ -23121,7 +23121,8 @@ async function run() {
         console.log('Get meeting topics');
         const meetingTopicsResult = await (0, meetingTopics_1.GetMeetingTopics)();
         console.log(meetingTopicsResult.topics);
-        const issueBody = hydrateIssueTemplate(attendees, actionItems, meetingTopicsResult.topics);
+        const meetingDate = new Date().toISOString().split('T')[0];
+        const issueBody = hydrateIssueTemplate(attendees, actionItems, meetingTopicsResult.topics, meetingDate);
         console.log('Create issue');
         const createdIssue = await (0, createIssue_1.createThisReposIssue)(issueBody);
         // Close out-of-band issues if any were processed
@@ -23138,13 +23139,14 @@ async function run() {
 }
 exports.run = run;
 // read in templated issue body, and replace the placeholders with the actual content
-function hydrateIssueTemplate(attendees, actionItems, meetingTopics) {
+function hydrateIssueTemplate(attendees, actionItems, meetingTopics, meetingDate) {
     // read in template file
     const issueTemplate = fs_1.default.readFileSync('./static/meeting-template.md', 'utf8');
     return issueTemplate
         .replace('{{attendees}}', attendees)
         .replace('{{action-items}}', actionItems)
-        .replace('{{meeting-topics}}', meetingTopics);
+        .replace('{{meeting-topics}}', meetingTopics)
+        .replaceAll('{{YYYY-MM-DD}}', meetingDate);
 }
 
 
