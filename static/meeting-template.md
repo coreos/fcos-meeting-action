@@ -104,7 +104,7 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
 2. Email a meeting summary
 
    - [ ] to: `coreos@lists.fedoraproject.org`
-   - [ ] subject: Fedora CoreOS Community Meeting Minutes YYYY-MM-DD
+   - [ ] subject: Fedora CoreOS Community Meeting Minutes {{YYYY-MM-DD}}
    - [ ] cc: `devel@lists.fedoraproject.org`
    - [ ] The body of the email is two parts
         - [ ] Header
@@ -116,14 +116,14 @@ At least 5 people must vote, or 51% of the WG membership, whichever is less. Vot
                 Minutes (text): <this-meetings-notes>.txt
                 Log: <this-meetings-notes>.log.html
                 ```
-            2. Update the `<this-meetings-notes>` with the link from `https://meetbot-raw.fedoraproject.org/meeting-1_matrix_fedoraproject-org/YYYY-MM-DD/`
+            2. Update the `<this-meetings-notes>` with the link from `https://meetbot-raw.fedoraproject.org/meeting-1_matrix_fedoraproject-org/{{YYYY-MM-DD}}/`
 
         - [ ] Body
 
             1. Copy and paste the contents of the `<this-meetings-notes>.txt` file
 
 3. Post to [fedora project](https://discussion.fedoraproject.org/tag/coreos-wg)
-    - [ ] subject: `Fedora CoreOS Community Meeting Minutes YYYY-MM-DD`
+    - [ ] subject: `Fedora CoreOS Community Meeting Minutes {{YYYY-MM-DD}}`
     - [ ] category: `Project Discussion`
     - [ ] tags: `coreos-wg`
     - [ ] In the terminal Copy and paste the following

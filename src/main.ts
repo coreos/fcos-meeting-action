@@ -22,10 +22,13 @@ export async function run(): Promise<void> {
     const meetingTopicsResult = await GetMeetingTopics()
     console.log(meetingTopicsResult.topics)
 
+    const meetingDate = new Date().toISOString().split('T')[0]
+
     const issueBody = hydrateIssueTemplate(
       attendees,
       actionItems,
-      meetingTopicsResult.topics
+      meetingTopicsResult.topics,
+      meetingDate
     )
     console.log('Create issue')
     const createdIssue = await createThisReposIssue(issueBody)
@@ -48,7 +51,8 @@ export async function run(): Promise<void> {
 function hydrateIssueTemplate(
   attendees: string,
   actionItems: string,
-  meetingTopics: string
+  meetingTopics: string,
+  meetingDate: string
 ): string {
   // read in template file
   const issueTemplate = fs.readFileSync('./static/meeting-template.md', 'utf8')
@@ -56,4 +60,5 @@ function hydrateIssueTemplate(
     .replace('{{attendees}}', attendees)
     .replace('{{action-items}}', actionItems)
     .replace('{{meeting-topics}}', meetingTopics)
+    .replaceAll('{{YYYY-MM-DD}}', meetingDate)
 }
