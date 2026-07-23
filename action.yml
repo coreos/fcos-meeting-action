@@ -10,7 +10,7 @@ inputs:
   rootURLMeetingLogs:
     description: 'Root URL past meeting logs'
     required: true
-    default: 'https://meetbot-raw.fedoraproject.org/teams/fedora_coreos_meeting/'
+    default: 'https://meetbot-raw.fedoraproject.org/meeting-1_matrix_fedoraproject-org/'
   trackingRepo:
     description: 'Where the meeting topic issues are found'
     required: true
